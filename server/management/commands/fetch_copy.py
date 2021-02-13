@@ -2,8 +2,8 @@ import io
 import redis
 import requests
 import pandas as pd
-from datetime import date
-from zipfile import ZipFile
+from datetime import date, timedelta
+from zipfile import ZipFile, BadZipFile
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -20,7 +20,11 @@ class Command(BaseCommand):
         headers = { 'User-Agent': 'Mozilla/5.0' }
         response = requests.get(url, headers=headers, stream=True)
 
-        zip_file = ZipFile(io.BytesIO(response.content))
+        try:
+            zip_file = ZipFile(io.BytesIO(response.content))
+        except BadZipFile:
+            self.stdout.write(self.style.WARNING("Today's data not available"))
+            return
         filename = zip_file.open(f'EQ{fetch_date}.CSV')
 
         df = pd.read_csv(filename, index_col='SC_CODE')
