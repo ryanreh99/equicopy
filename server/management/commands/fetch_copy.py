@@ -1,44 +1,22 @@
-import io
-import redis
-import requests
-import pandas as pd
-from datetime import date, timedelta
+from io import BytesIO
 from zipfile import ZipFile, BadZipFile
 
 from django.core.management.base import BaseCommand, CommandError
 
+from server.utils.fetch import get_formatted_date, get_dataframe, get_response
+from server.utils.redis import redis_api
+
 
 class Command(BaseCommand):
-    help = 'Fetches the BhavCopy and mass inserts data'
+    help = 'Fetches the BhavCopy and mass inserts the data'
 
-    def handle(self, *args, **options):
-        today = date.today()
-        fetch_date = today.strftime('%d%m%y')
-        print("Fetching date:", fetch_date)
-
-        url = f'https://www.bseindia.com/download/BhavCopy/Equity/EQ{fetch_date}_CSV.ZIP'
-        headers = { 'User-Agent': 'Mozilla/5.0' }
-        response = requests.get(url, headers=headers, stream=True)
-
-        try:
-            zip_file = ZipFile(io.BytesIO(response.content))
-        except BadZipFile:
-            self.stdout.write(self.style.WARNING("Today's data not available"))
-            return
-        filename = zip_file.open(f'EQ{fetch_date}.CSV')
-
-        df = pd.read_csv(filename, index_col='SC_CODE')
+    def insert_into_redis(self, df):
+        redis_api.flushall()
 
         CHUNK_SIZE = 500
         BATCH_START = 0
         ORDER_NUM = 0
         NUM_ENTRIES = df.shape[0]
-
-        rclient = redis.Redis(
-            host='localhost',
-            port=6379,
-            db=0
-        )
 
         def clean(item):
             if isinstance(item, str):
@@ -63,7 +41,7 @@ class Command(BaseCommand):
 
             return order_num + len(keys)
 
-        with rclient.pipeline() as pipe:
+        with redis_api.get_pipeline() as pipe:
             while BATCH_START <= NUM_ENTRIES:
                 items = df[BATCH_START : BATCH_START + CHUNK_SIZE]
                 keys = items.index.values
@@ -71,5 +49,21 @@ class Command(BaseCommand):
                 BATCH_START += CHUNK_SIZE
             pipe.execute()
 
+
+    def handle(self, *args, **options):
+        fetch_date = get_formatted_date()
+        print("Fetching date:", fetch_date)
+
+        response = get_response(fetch_date)
+
+        try:
+            zip_file = ZipFile(BytesIO(response.content))
+        except BadZipFile:
+            self.stdout.write(self.style.WARNING("ERROR: Incorrect file received"))
+            return
+        csv_file = zip_file.open(f'EQ{fetch_date}.CSV')
+
+        df = get_dataframe(csv_file)
+        self.insert_into_redis(df)
 
         self.stdout.write(self.style.SUCCESS('Successfully inserted data!'))

@@ -1,8 +1,8 @@
-import json
-import redis
-
 from django.shortcuts import render
 from django.http import HttpResponse
+
+from server.utils.redis import redis_api
+from server.utils.response import json_success
 
 
 def clean_column_name(name: str) -> str:
@@ -10,15 +10,8 @@ def clean_column_name(name: str) -> str:
 
 
 def fetch_data(request):
-    rclient = redis.Redis(
-                host='localhost',
-                port=6379,
-                db=0,
-                charset="utf-8",
-                decode_responses=True,
-            )
-    hashnames = rclient.zrange("order", 0, -1)
-    column_names = rclient.hkeys(hashnames[0])
+    hashnames = redis_api.get_all_hashnames()
+    column_names = redis_api.get_column_names()
     
     columns = [
         {
@@ -28,7 +21,7 @@ def fetch_data(request):
         for column in column_names
     ]
     rows = [
-        rclient.hgetall(hashname)
+        redis_api.get_all_hash_items(hashname)
         for hashname in hashnames
     ]
 
@@ -37,11 +30,4 @@ def fetch_data(request):
         "rows": rows,
     }
 
-    response = HttpResponse(
-        content=json.dumps(
-            data,
-        ),
-        content_type='application/json',
-        status=200,
-    )
-    return response
+    return json_success(data)
