@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: "HelloWorld",
+  name: "Header",
   props: {
     heading: String,
     info: String
@@ -17,14 +17,13 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .top {
   background: #262626;
-  height: 130px;
 
   img {
     height: inherit;
+    max-height: 100px;
     float: right;
   }
 

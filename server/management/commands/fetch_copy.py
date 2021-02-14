@@ -45,7 +45,11 @@ class Command(BaseCommand):
             while BATCH_START <= NUM_ENTRIES:
                 items = df[BATCH_START : BATCH_START + CHUNK_SIZE]
                 keys = items.index.values
-                ORDER_NUM = mass_insert(items.to_dict(), keys, ORDER_NUM)
+                ORDER_NUM = mass_insert(
+                    items.to_dict(),
+                    keys,
+                    ORDER_NUM
+                )
                 BATCH_START += CHUNK_SIZE
             pipe.execute()
 
@@ -59,11 +63,15 @@ class Command(BaseCommand):
         try:
             zip_file = ZipFile(BytesIO(response.content))
         except BadZipFile:
-            self.stdout.write(self.style.WARNING("ERROR: Incorrect file received"))
+            self.stdout.write(
+                self.style.WARNING("ERROR: Incorrect file received")
+            )
             return
         csv_file = zip_file.open(f'EQ{fetch_date}.CSV')
 
         df = get_dataframe(csv_file)
         self.insert_into_redis(df)
 
-        self.stdout.write(self.style.SUCCESS('Successfully inserted data!'))
+        self.stdout.write(
+            self.style.SUCCESS('Successfully inserted data!')
+        )
