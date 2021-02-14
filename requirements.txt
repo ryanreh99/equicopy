@@ -1,0 +1,8 @@
+Django
+django-cors-headers
+requests
+pandas
+redis
+django-heroku
+gunicorn
+whitenoise

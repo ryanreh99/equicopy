@@ -2,6 +2,7 @@
 node_modules
 /dist
 **/__pycache__
+staticfiles
 
 
 # local env files
