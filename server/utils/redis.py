@@ -22,7 +22,12 @@ class Redis:
         return self.rclient.hkeys(hashnames[0])
     
     def get_all_hash_items(self, hashname):
-        return self.rclient.hgetall(hashname)
+        ret = self.rclient.hgetall(hashname)
+        ret["SC_CODE"] = hashname
+        return ret
+    
+    def get_date(self):
+        return self.rclient.get("date")
     
     def flushall(self):
         return self.rclient.flushall()

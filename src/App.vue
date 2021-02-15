@@ -1,11 +1,7 @@
 <template>
   <div id="app">
-    <Header
-      heading="Equicopy"
-    />
-    <Datatable
-      url = "http://localhost:8000/bhavcopy/"
-    />
+    <Header heading="Equicopy" url="https://equicopy.herokuapp.com/getCSV/" />
+    <Datatable url="https://equicopy.herokuapp.com/bhavcopy/" />
   </div>
 </template>
 

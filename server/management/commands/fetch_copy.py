@@ -3,14 +3,18 @@ from zipfile import ZipFile, BadZipFile
 
 from django.core.management.base import BaseCommand, CommandError
 
-from server.utils.fetch import get_formatted_date, get_dataframe, get_response
+from server.utils.fetch import (
+    get_formatted_date,
+    get_dataframe,
+    get_response
+)
 from server.utils.redis import redis_api
 
 
 class Command(BaseCommand):
     help = 'Fetches the BhavCopy and mass inserts the data'
 
-    def insert_into_redis(self, df):
+    def insert_into_redis(self, df, fetch_date):
         redis_api.flushall()
 
         CHUNK_SIZE = 500
@@ -42,6 +46,8 @@ class Command(BaseCommand):
             return order_num + len(keys)
 
         with redis_api.get_pipeline() as pipe:
+            pipe.set("date", fetch_date)
+
             while BATCH_START <= NUM_ENTRIES:
                 items = df[BATCH_START : BATCH_START + CHUNK_SIZE]
                 keys = items.index.values
@@ -65,16 +71,16 @@ class Command(BaseCommand):
         try:
             zip_file = ZipFile(BytesIO(response.content))
         except BadZipFile:
-            return False, None
+            return False, None, None
         csv_file = zip_file.open(f'EQ{fetch_date}.CSV')
         
-        return True, csv_file
+        return True, csv_file, fetch_date
 
     def handle(self, *args, **options):
         MAX_RETRIES = 1
         RETRIES_LEFT = 1
         while (RETRIES_LEFT >= 0):
-            success, csv_file = self.get_csv_file(
+            success, csv_file, fetch_date = self.get_csv_file(
                 MAX_RETRIES - RETRIES_LEFT
             )
             RETRIES_LEFT -= 1
@@ -87,7 +93,7 @@ class Command(BaseCommand):
             )
 
         df = get_dataframe(csv_file)
-        self.insert_into_redis(df)
+        self.insert_into_redis(df, fetch_date)
 
         self.stdout.write(
             self.style.SUCCESS('Successfully inserted data!')
