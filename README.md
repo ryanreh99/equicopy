@@ -1,5 +1,7 @@
 # equicopy
 
+https://equicopy.herokuapp.com/
+
 ## Project setup
 ```
 npm install

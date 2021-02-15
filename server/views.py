@@ -14,8 +14,9 @@ def clean_column_name(name: str) -> str:
 def fetch_data(request):
     if redis_api.is_empty():
         os.system("python manage.py fetch_copy")
-
-    hashnames = redis_api.get_all_hashnames()
+    
+    start = int(request.GET.get('start', 0))
+    hashnames = redis_api.get_all_hashnames(start, start + 100)
     column_names = redis_api.get_column_names()
     
     columns = [

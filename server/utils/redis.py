@@ -12,11 +12,11 @@ class Redis:
         )
 
 
-    def get_all_hashnames(self):
-        return self.rclient.zrange("order", 0, -1)
+    def get_all_hashnames(self, start=0, end=-1):
+        return self.rclient.zrange("order", start, end)
 
     def get_column_names(self):
-        hashnames = self.get_all_hashnames()
+        hashnames = self.get_all_hashnames(0, 1)
         if len(hashnames) == 0:
             return []
         return self.rclient.hkeys(hashnames[0])
@@ -31,7 +31,7 @@ class Redis:
         return self.rclient.pipeline()
     
     def is_empty(self):
-        hashnames = self.get_all_hashnames()
+        hashnames = self.get_all_hashnames(0, 1)
         return len(hashnames) == 0
 
 redis_api = Redis()
