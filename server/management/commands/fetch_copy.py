@@ -54,8 +54,10 @@ class Command(BaseCommand):
             pipe.execute()
 
 
-    def handle(self, *args, **options):
-        fetch_date = get_formatted_date()
+    def get_csv_file(self, days=0):
+        # If current date data not found.
+        # Try fetching previous days.
+        fetch_date = get_formatted_date(days)
         print("Fetching date:", fetch_date)
 
         response = get_response(fetch_date)
@@ -63,11 +65,26 @@ class Command(BaseCommand):
         try:
             zip_file = ZipFile(BytesIO(response.content))
         except BadZipFile:
-            self.stdout.write(
+            return False, None
+        csv_file = zip_file.open(f'EQ{fetch_date}.CSV')
+        
+        return True, csv_file
+
+    def handle(self, *args, **options):
+        MAX_RETRIES = 1
+        RETRIES_LEFT = 1
+        while (RETRIES_LEFT >= 0):
+            success, csv_file = self.get_csv_file(
+                MAX_RETRIES - RETRIES_LEFT
+            )
+            RETRIES_LEFT -= 1
+            if success:
+                break
+        
+        if not success:
+            return self.stdout.write(
                 self.style.WARNING("ERROR: Incorrect file received")
             )
-            return
-        csv_file = zip_file.open(f'EQ{fetch_date}.CSV')
 
         df = get_dataframe(csv_file)
         self.insert_into_redis(df)

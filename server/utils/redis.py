@@ -29,5 +29,9 @@ class Redis:
     
     def get_pipeline(self):
         return self.rclient.pipeline()
+    
+    def is_empty(self):
+        hashnames = self.get_all_hashnames()
+        return len(hashnames) == 0
 
 redis_api = Redis()

@@ -2,8 +2,8 @@ import requests
 from pandas import read_csv
 from datetime import date, timedelta
 
-def get_formatted_date():
-    today = date.today()
+def get_formatted_date(days = 0):
+    today = date.today() - timedelta(days)
     weekday = today.weekday()
 
     if weekday > 4:
