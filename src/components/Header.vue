@@ -2,8 +2,11 @@
   <div class="top">
     <img alt="Vue logo" src="../assets/logo.png" />
     <h1>{{ heading }}</h1>
-    <br />
-    <h5>{{ info }}</h5>
+    <p>
+      This displays the latest 
+      <a href="https://www.bseindia.com/markets/MarketInfo/BhavCopy.aspx">BhavCopy</a>
+      published by the BSE and is updated everyday at 6:00pm
+    </p>
   </div>
 </template>
 
@@ -12,7 +15,6 @@ export default {
   name: "Header",
   props: {
     heading: String,
-    info: String
   }
 };
 </script>
@@ -20,6 +22,7 @@ export default {
 <style scoped lang="scss">
 .top {
   background: #262626;
+  padding-bottom: 10px;
 
   img {
     height: inherit;
@@ -27,12 +30,9 @@ export default {
     float: right;
   }
 
-  h1 {
+  h1, p {
     color: #fbfbfb;
     text-align: center;
-  }
-  h5 {
-    color: #fbfbfb;
   }
 }
 </style>

@@ -1,26 +1,13 @@
 # equicopy
 
 https://equicopy.herokuapp.com/
-
 ## Project setup
-```
-npm install
-```
 
-### Compiles and hot-reloads for development
 ```
+Activate a virtual environment
+Start redis-server
+pip install -r requirements.txt
+npm install
+python manage.py runserver
 npm run serve
 ```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

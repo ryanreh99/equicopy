@@ -2,9 +2,10 @@
   <div id="app">
     <Header
       heading="Equicopy"
-      info="The contents get refreshed everyday at 6:00pm except on Saturday and Sunday. For this case, the latest released data will be displayed."
     />
-    <Datatable />
+    <Datatable
+      url = "http://localhost:8000/bhavcopy/"
+    />
   </div>
 </template>
 

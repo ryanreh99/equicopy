@@ -16,7 +16,8 @@ def fetch_data(request):
         os.system("python manage.py fetch_copy")
     
     start = int(request.GET.get('start', 0))
-    hashnames = redis_api.get_all_hashnames(start, start + 100)
+    intervals = 100
+    hashnames = redis_api.get_all_hashnames(start, start + intervals)
     column_names = redis_api.get_column_names()
     
     columns = [
