@@ -2,7 +2,7 @@ import redis
 
 
 class Redis:
-    def __init__(self) -> None:       
+    def __init__(self) -> None:
         self.hostname = 'localhost'
         self.port = 6379
         self.password = None

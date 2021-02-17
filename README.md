@@ -4,6 +4,7 @@ https://equicopy.herokuapp.com/
 ## Local Dev environment setup:
 
 ```
+In equicopy/settings.py set DEBUG = True
 Activate a virtual environment
 Start redis-server
 pip install -r requirements.txt
@@ -27,7 +28,7 @@ This is required only for the production version and to use it run:
 ```
 python manage.py collectstatic
 gunicorn equicopy.wsgi
-Go to http://localhost:8000
+Go to http://127.0.0.1:8000
 ```
 ___
 

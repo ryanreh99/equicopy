@@ -3,6 +3,7 @@ node_modules
 /dist
 **/__pycache__
 staticfiles
+celerybeat-schedule
 
 
 # local env files
