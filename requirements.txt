@@ -7,3 +7,4 @@ django-heroku
 gunicorn
 whitenoise
 celery
+redisearch

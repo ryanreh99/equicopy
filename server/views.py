@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.http import (
     HttpRequest,
@@ -22,6 +24,13 @@ def create_column_data(column) -> dict:
         }
 
 
+def create_row_data(row) -> dict:
+    return {
+        'SC_CODE': row.__dict__['id'][6:],  # Remove "stock:" prefix
+        **row.__dict__
+    }
+
+
 @check_redis
 def get_csv_data(request: HttpRequest) -> HttpResponse:   
     url = get_url(redis_api.get_date())
@@ -31,8 +40,15 @@ def get_csv_data(request: HttpRequest) -> HttpResponse:
 @check_redis
 def fetch_data(request: HttpRequest) -> HttpResponse:
     start = int(request.GET.get('start', 0))
+    query_string = request.GET.get('query_string', '*')
+    filters = request.GET.get('filters', {})
+
+    if isinstance(filters, str):
+        json_acceptable_string = filters.replace("'", "\"")
+        filters = json.loads(json_acceptable_string)
+
     intervals = 100
-    hashnames = redis_api.get_all_hashnames(start, start + intervals)
+    hashnames = redis_api.perform_search(query_string, start, start + intervals, filters)
     column_names = redis_api.get_column_names()
     
     columns = [
@@ -42,7 +58,7 @@ def fetch_data(request: HttpRequest) -> HttpResponse:
         for column in column_names
     ]
     rows = [
-        redis_api.get_all_hash_items(hashname)
+        create_row_data(hashname)
         for hashname in hashnames
     ]
 

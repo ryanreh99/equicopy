@@ -37,6 +37,6 @@ ___
 Update the URLs present in `src/App.vue` to `https://equicopy.herokuapp.com/...`
 And also update the credentials in `server/utils/redis.py`
 
-And instead of using celery beat the `Heroku Scheduler` and `Heroku Redis` add ons are installed.
+And instead of using celery beat the `Heroku Scheduler` add-on is installed.
 Then push to heroku or use `heroku local web` to test first.
 ___

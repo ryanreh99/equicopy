@@ -29,13 +29,13 @@ class Command(BaseCommand):
         
         def mass_insert(items: dict, keys: list, order_num: int):           
             [
-                pipe.zadd("order", { str(key): order_num + index })
+                pipe.zadd("order", { "stock:" + str(key): order_num + index })
                 for index, key in enumerate(keys)
             ]
 
             [
                 pipe.hset(
-                    clean(hashname),
+                    f"stock:{clean(hashname)}",
                     clean(field),
                     clean(items[field][hashname])
                 )
@@ -58,6 +58,7 @@ class Command(BaseCommand):
                 )
                 BATCH_START += CHUNK_SIZE
             pipe.execute()
+        redis_api.create_index()
 
 
     def get_csv_file(self, days=0):

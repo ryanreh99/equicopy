@@ -5,11 +5,25 @@
     </mdb-progress>
     <br />
 
-    <mdb-input class="mt-0" v-model="search" label="Search by Name" />
+    <mdb-input
+      class="mt-0 mb-3"
+      placeholder="Redis Search. Click Help for query options."
+      v-model="search"
+    >
+      <mdb-btn color="info" group slot="append"> Help </mdb-btn>
+      <mdb-btn
+        color="default"
+        group
+        slot="append"
+        id="search-button"
+        v-on:click="search_query"
+      >
+        Enter
+      </mdb-btn>
+    </mdb-input>
 
     <mdb-datatable-2
       v-model="data"
-      :searching="{ value: search, field: 'SC_NAME' }"
       striped
       bordered
       arrows
@@ -20,7 +34,7 @@
 </template>
 
 <script>
-import { mdbDatatable2, mdbInput, mdbProgress } from "mdbvue";
+import { mdbDatatable2, mdbInput, mdbProgress, mdbBtn } from "mdbvue";
 export default {
   name: "DataTable",
   props: {
@@ -29,12 +43,13 @@ export default {
   components: {
     mdbDatatable2,
     mdbInput,
-    mdbProgress
+    mdbProgress,
+    mdbBtn
   },
   data() {
     return {
-      height: 20,
       loading: 0,
+      height: 20,
       search: "",
       data: {
         rows: [],
@@ -42,31 +57,62 @@ export default {
       }
     };
   },
-  mounted() {
-    let ct = 0;
-    const MAX_ENTRIES = 4000;
-    const intervals = 100; // should match with backend
+  methods: {
+    search_query() {
+      let search_string = "";
+      if (search_string === "") {
+        search_string = "*";
+      }
+      this.loading = 0;
+      this.height = 20;
+      this.data = {
+        rows: [],
+        columns: []
+      };
 
-    while (ct <= MAX_ENTRIES) {
-      let url = this.url + "?start=" + ct;
+      const filters = {};
+      for (const query of this.search.split("&")) {
+        const [prefix, value] = query.trim().split(":");
+        if (prefix === "SC_NAME") {
+          search_string = value;
+        } else {
+          filters[prefix] = value;
+        }
+      }
 
-      fetch(url)
-        .then(res => res.json())
-        .then(json => {
-          this.data = {
-            columns: json.columns,
-            rows: this.data.rows.concat(json.rows)
-          };
+      this.fetch_data(search_string, filters);
+    },
+    fetch_data(search, filters) {
+      // should match with backend
+      const MAX_ENTRIES = 4000;
+      const intervals = 100;
+      let ct = 0;
 
-          if (json.rows.length < intervals) this.height = 0;
-          this.loading = parseInt(
-            Math.min((this.data.rows.length * 100) / MAX_ENTRIES, 100)
-          );
-        })
-        .catch(err => console.log(err));
+      while (ct <= MAX_ENTRIES) {
+        let url = new URL(this.url);
+        url.searchParams.append("start", ct);
+        url.searchParams.append("query_string", search);
+        url.searchParams.append("filters", JSON.stringify(filters));
 
-      ct += intervals + 1;
+        fetch(url)
+          .then(res => res.json())
+          .then(json => {
+            this.data = {
+              columns: json.columns,
+              rows: this.data.rows.concat(json.rows)
+            };
+
+            this.loading += (intervals * 100) / MAX_ENTRIES;
+            if (this.loading >= 100) this.height = 0;
+          })
+          .catch(err => console.log(err));
+
+        ct += intervals + 1;
+      }
     }
+  },
+  mounted() {
+    this.fetch_data("*", {});
   }
 };
 </script>
