@@ -29,7 +29,7 @@ def get_csv_data(request: HttpRequest) -> HttpResponse:
 
 
 @check_redis
-def fetch_data(request: HttpRequest) -> HttpResponse:    
+def fetch_data(request: HttpRequest) -> HttpResponse:
     start = int(request.GET.get('start', 0))
     intervals = 100
     hashnames = redis_api.get_all_hashnames(start, start + intervals)

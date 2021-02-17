@@ -6,3 +6,4 @@ redis
 django-heroku
 gunicorn
 whitenoise
+celery

@@ -2,15 +2,27 @@ import redis
 
 
 class Redis:
-    def __init__(self) -> None:
+    def __init__(self) -> None:       
+        self.hostname = 'localhost'
+        self.port = 6379
+        self.password = None
+        self.db_number = 0
+
         self.rclient = redis.Redis(
-            host='localhost',
-            port=6379,
-            db=0,
+            host=self.hostname,
+            port=self.port,
+            password=self.password,
+            db=self.db_number,
             charset="utf-8",
             decode_responses=True,
         )
 
+
+    def get_broker_url(self):
+        broker_url = f'{self.hostname}:{self.port}/{self.db_number}'
+        if self.password is not None:
+            broker_url = f':{self.password}@{broker_url}'
+        return "redis://" + broker_url
 
     def get_all_hashnames(self, start=0, end=-1):
         return self.rclient.zrange("order", start, end)
