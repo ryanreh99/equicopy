@@ -81,10 +81,10 @@ class Redis:
                 lower, upper = filters[index].split(',')
             q.add_filter(NumericFilter(index, lower, upper))
 
-        q.limit_ids(*limit_range).paging(0, 4000)
         # default paging is performed for only 10 entries
         # We allow returning all entries (4000) and
         # paging is performed through the limit ids.
+        q.limit_ids(*limit_range).paging(0, 4000)
 
         return q
 

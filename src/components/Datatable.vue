@@ -3,7 +3,6 @@
     <mdb-progress :height="this.height" :value="this.loading">
       Loading {{ this.loading }}%
     </mdb-progress>
-    <br />
 
     <mdb-input
       class="mt-0 mb-3"
@@ -13,15 +12,19 @@
       <mdb-btn color="info" group slot="append" @click="showSearchInfo">
         Help
       </mdb-btn>
-      <mdb-btn
-        color="default"
-        group
-        slot="append"
-        id="search-button"
-        v-on:click="searchQuery"
-      >
-        Enter
-      </mdb-btn>
+      <mdb-tooltip trigger="hover" :options="{ placement: 'left' }">
+        <span slot="tip" v-if="this.disableSearch">Disabled while data loads.</span>
+        <mdb-btn
+          color="default"
+          group
+          slot="reference"
+          id="search-button"
+          v-on:click="searchQuery"
+          v-bind:disabled="this.disableSearch"
+        >
+          Enter
+        </mdb-btn>
+      </mdb-tooltip>
     </mdb-input>
 
     <mdb-datatable-2
@@ -36,7 +39,14 @@
 </template>
 
 <script>
-import { mdbDatatable2, mdbInput, mdbProgress, mdbBtn } from "mdbvue";
+import {
+  mdbDatatable2,
+  mdbInput,
+  mdbProgress,
+  mdbBtn,
+  mdbTooltip
+} from "mdbvue";
+
 export default {
   name: "DataTable",
   props: {
@@ -46,12 +56,14 @@ export default {
     mdbDatatable2,
     mdbInput,
     mdbProgress,
-    mdbBtn
+    mdbBtn,
+    mdbTooltip
   },
   data() {
     return {
       loading: 0,
       height: 20,
+      disableSearch: true,
       search: "",
       data: {
         rows: [],
@@ -64,10 +76,8 @@ export default {
       this.$emit("showSearchInfo");
     },
     searchQuery() {
-      let search_string = "";
-      if (search_string === "") {
-        search_string = "*";
-      }
+      let search_string = "*";
+      this.disableSearch = true;
       this.loading = 0;
       this.height = 20;
       this.data = {
@@ -108,7 +118,10 @@ export default {
             };
 
             this.loading += (intervals * 100) / MAX_ENTRIES;
-            if (this.loading >= 100) this.height = 0;
+            if (this.loading >= 100) {
+              this.height = 0;
+              this.disableSearch = false;
+            }
           })
           .catch(err => console.log(err));
 
@@ -122,4 +135,12 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.btn.disabled {
+  /* Display tooltip on button even when disabled */
+  pointer-events: auto !important;
+}
+.tooltip {
+  pointer-events: none;
+}
+</style>
