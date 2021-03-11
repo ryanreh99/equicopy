@@ -10,13 +10,15 @@
       placeholder="Redis Search. Click Help for query options."
       v-model="search"
     >
-      <mdb-btn color="info" group slot="append"> Help </mdb-btn>
+      <mdb-btn color="info" group slot="append" @click="showSearchInfo">
+        Help
+      </mdb-btn>
       <mdb-btn
         color="default"
         group
         slot="append"
         id="search-button"
-        v-on:click="search_query"
+        v-on:click="searchQuery"
       >
         Enter
       </mdb-btn>
@@ -58,7 +60,10 @@ export default {
     };
   },
   methods: {
-    search_query() {
+    showSearchInfo() {
+      this.$emit("showSearchInfo");
+    },
+    searchQuery() {
       let search_string = "";
       if (search_string === "") {
         search_string = "*";
@@ -80,9 +85,9 @@ export default {
         }
       }
 
-      this.fetch_data(search_string, filters);
+      this.fetchData(search_string, filters);
     },
-    fetch_data(search, filters) {
+    fetchData(search, filters) {
       // should match with backend
       const MAX_ENTRIES = 4000;
       const intervals = 100;
@@ -112,7 +117,7 @@ export default {
     }
   },
   mounted() {
-    this.fetch_data("*", {});
+    this.fetchData("*", {});
   }
 };
 </script>

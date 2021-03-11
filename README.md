@@ -40,3 +40,39 @@ And also update the credentials in `server/utils/redis.py`
 And instead of using celery beat the `Heroku Scheduler` add-on is installed.
 Then push to heroku or use `heroku local web` to test first.
 ___
+
+## Searching:
+<details>
+<summary>Click Here (Also can be found in the Help button)</summary>
+<br>
+
+The `SC_NAME` queries value should always be in Upper Case.
+Append a `*` to the string to perform prefix based search.
+Else the string has to ben an exact match.
+`MIN_PREFIX_LENGTH` has been set to 2 (default).
+
+You can perform the `SC_NAME` query according to the following rules: 
+https://oss.redislabs.com/redisearch/Query_Syntax/
+
+
+To add Numeric filters, seperate the queries with a `&`.
+And the value string containing `,` should have no spaces.
+Decimal values are also allowed.
+
+Possible Numeric filters include:
+`[
+    'OPEN',
+    'HIGH',
+    'LOW',
+    'CLOSE',
+    'LAST',
+    'PREVCLOSE',
+    'NO_TRADES',
+    'NO_OF_SHRS',
+    'NET_TURNOV',
+]`
+
+
+### Example Query:
+`SC_NAME: CRES* & OPEN: 0.23,78.6 & LAST: 22.1,40`
+</details>

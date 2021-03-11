@@ -1,7 +1,14 @@
 <template>
   <div id="app">
     <Header heading="Equicopy" url="http://localhost:8000/getCSV/" />
-    <Datatable url="http://localhost:8000/bhavcopy/" />
+    <Datatable
+      url="http://localhost:8000/bhavcopy/"
+      @showSearchInfo="showSearchInfo"
+    />
+    <HelpModal
+      v-bind:showModal="this.showModal"
+      @hideSearchInfo="hideSearchInfo"
+    />
   </div>
 </template>
 
@@ -13,12 +20,27 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import Header from "./components/Header.vue";
 import Datatable from "./components/Datatable.vue";
+import HelpModal from "./components/HelpModal.vue";
 
 export default {
   name: "App",
   components: {
     Header,
-    Datatable
+    Datatable,
+    HelpModal
+  },
+  data() {
+    return {
+      showModal: false
+    };
+  },
+  methods: {
+    showSearchInfo() {
+      this.showModal = true;
+    },
+    hideSearchInfo() {
+      this.showModal = false;
+    }
   }
 };
 </script>
