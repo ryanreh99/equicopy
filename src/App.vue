@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <Header heading="Equicopy" url="http://localhost:8080/getCSV/" />
+    <Header heading="Equicopy" url="http://localhost:8000/getCSV/" />
     <Datatable
-      url="http://localhost:8080/bhavcopy/"
+      url="http://localhost:8000/bhavcopy/"
       @showSearchInfo="showSearchInfo"
     />
     <HelpModal

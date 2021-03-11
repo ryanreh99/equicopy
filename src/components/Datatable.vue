@@ -97,7 +97,7 @@ export default {
 
       this.fetchData(search_string, filters);
     },
-    fetchData(search, filters) {
+    async fetchData(search, filters) {
       // should match with backend
       const MAX_ENTRIES = 4000;
       const intervals = 100;
@@ -109,7 +109,7 @@ export default {
         url.searchParams.append("query_string", search);
         url.searchParams.append("filters", JSON.stringify(filters));
 
-        fetch(url)
+        await fetch(url)
           .then(res => res.json())
           .then(json => {
             this.data = {
